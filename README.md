@@ -1,4 +1,4 @@
-SPAM = Simple PAssword Manager 
+# SPAM = Simple PAssword Manager 
 
 The jar needs to be run from inside SPAM folder created in 'target'.
 
