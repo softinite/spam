@@ -5,6 +5,7 @@ import com.softinite.spam.cli.UserInteraction;
 import com.softinite.spam.encrdecr.FileProxy;
 import com.softinite.spam.encrdecr.PasswordContainer;
 import org.apache.commons.cli.*;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -25,6 +26,7 @@ public class SPAManager {
 
     private static final Logger LOGGER = Logger.getLogger(SPAManager.class.getName());
     public static final String CMD_LINE_SYNTAX = "java -jar SPAM-1.0-SNAPSHOT-fat.jar <OPTIONS>";
+    protected static final String ACCT_NOT_FOUND_MSG = "Could not locate account ";
 
     private Options availableOptions;
     private UserInteraction userInteraction;
@@ -103,21 +105,38 @@ public class SPAManager {
             addAccount();
         } else if (cmd.hasOption(SpamCLIOptions.SHOW.getName())) {
             showSecret();
+        } else if (cmd.hasOption(SpamCLIOptions.UPDATE.getName())) {
+            modifySecret();
+        } else if (cmd.hasOption(SpamCLIOptions.DELETE.getName())) {
+            removeAccount();
         }
     }
 
-    protected void createFile(FileProxy targetFile) throws IOException {
-        targetFile.touch();
+    protected void createFile(FileProxy targetFile) throws IOException, NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, NoSuchProviderException, InvalidKeyException {
+        String rootPassword = getUserInteraction().readRootPassoword();
+        String confirmation = getUserInteraction().readPasswordConfirmation();
+        if (StringUtils.equals(rootPassword, confirmation)) {
+            targetFile.touch();
+            getPasswordContainer().init(rootPassword, targetFile);
+            getPasswordContainer().save();
+        } else {
+            throw new RuntimeException("Could not confirm passowrd difference= " + StringUtils.difference(rootPassword, confirmation));
+        }
     }
 
     protected void listAllAccounts() {
-        LOGGER.info("Listing all the account.");
+        LOGGER.info("Listing all the accounts.");
         getUserInteraction().showSetToUser(getPasswordContainer().loadKeys());
     }
 
     protected void addAccount() throws NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidKeyException {
         LOGGER.info("Adding new account to manager's database.");
         String accountName = getUserInteraction().readAccountName();
+        addAccount(accountName);
+    }
+
+    protected void addAccount(String accountName) throws NoSuchPaddingException, InvalidKeyException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidAlgorithmParameterException {
+        LOGGER.info("Reading secret for account=" + accountName);
         String accountSecret = getUserInteraction().readAccountSecret();
         getPasswordContainer().addAccount(accountName, accountSecret);
         getPasswordContainer().save();
@@ -127,7 +146,38 @@ public class SPAManager {
         LOGGER.info("Preparing to show the secret for an account.");
         String accountName = getUserInteraction().readAccountName();
         String secret = getPasswordContainer().loadSecret(accountName);
-        getUserInteraction().showToUser(secret);
+        if (secret == null) {
+            getUserInteraction().showErrorToUser(ACCT_NOT_FOUND_MSG + accountName);
+        } else {
+            getUserInteraction().showToUser(secret);
+        }
+    }
+
+    protected void modifySecret() throws NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidKeyException {
+        LOGGER.info("Preparing to modify an account.");
+        String accountName = getUserInteraction().readAccountName();
+        if (getPasswordContainer().doesAccountExist(accountName)) {
+            String accountSecret = getUserInteraction().readAccountSecret();
+            getPasswordContainer().modify(accountName, accountSecret);
+            getPasswordContainer().save();
+        } else {
+            getUserInteraction().showToUser("Could not find account with name " + accountName + ". Would you like to add it yes/no ? [no]");
+            Boolean yes = getUserInteraction().readYesNoAnswer();
+            if (yes) {
+                addAccount(accountName);
+            }
+        }
+    }
+
+    protected void removeAccount() throws NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidKeyException {
+        LOGGER.info("Preparing to delete account.");
+        String accountName = getUserInteraction().readAccountName();
+        if (getPasswordContainer().doesAccountExist(accountName)) {
+            getPasswordContainer().remove(accountName);
+            getPasswordContainer().save();
+        } else {
+            getUserInteraction().showToUser("Could not locate account " + accountName);
+        }
     }
 
     public UserInteraction getUserInteraction() {
@@ -138,6 +188,7 @@ public class SPAManager {
         this.userInteraction = userInteraction;
     }
 
+
     public PasswordContainer getPasswordContainer() {
         return passwordContainer;
     }
@@ -145,6 +196,4 @@ public class SPAManager {
     public void setPasswordContainer(PasswordContainer passwordContainer) {
         this.passwordContainer = passwordContainer;
     }
-
-
 }

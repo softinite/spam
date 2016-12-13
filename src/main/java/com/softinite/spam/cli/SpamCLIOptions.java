@@ -13,7 +13,9 @@ public enum SpamCLIOptions {
     LIST_ACCTS_NAMES("list", Boolean.FALSE, "Specify this option to see the full list of available accounts."),
     CREATE("c", Boolean.FALSE, "Use this option to create the password file."),
     NEW_ACCT("new", Boolean.FALSE, "Use this option to add new account to be managed."),
-    SHOW("show", Boolean.FALSE, "Use this option to specify the exact name of the account for which to show the secret.");
+    SHOW("show", Boolean.FALSE, "Use this option to see the secret for a specific account."),
+    UPDATE("update", Boolean.FALSE, "Use this option to update the secret for a specific account."),
+    DELETE("del", Boolean.FALSE, "Use this option to delete an account. Please use with caution.");
 
     private Option option;
 

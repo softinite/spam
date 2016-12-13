@@ -84,4 +84,16 @@ public class PasswordContainer {
     public String loadSecret(String accountName) {
         return getProperties().getProperty(accountName);
     }
+
+    public void remove(String accountName) {
+        getProperties().remove(accountName);
+    }
+
+    public Boolean doesAccountExist(String accountName) {
+        return getProperties().containsKey(accountName);
+    }
+
+    public void modify(String accountName, String accountSecret) {
+        getProperties().put(accountName, accountSecret);
+    }
 }

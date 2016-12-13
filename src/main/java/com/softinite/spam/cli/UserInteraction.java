@@ -1,5 +1,7 @@
 package com.softinite.spam.cli;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.Console;
 import java.util.Set;
 
@@ -17,7 +19,11 @@ public class UserInteraction {
     }
 
     protected String readSecret() {
-        return new String(CONSOLE.readPassword());
+        String secret = new String(CONSOLE.readPassword());
+        if (StringUtils.isBlank(secret)) {
+            throw new RuntimeException("Blank value not allowed.");
+        }
+        return secret;
     }
 
     public void showToUser(String text) {
@@ -26,17 +32,35 @@ public class UserInteraction {
 
     public void showSetToUser(Set<String> contentSet) {
         if (contentSet != null) {
-            contentSet.stream().forEach(System.out::println);
+            contentSet.forEach(System.out::println);
         }
     }
 
     public String readAccountName() {
         showToUser("Please enter account name:");
-        return CONSOLE.readLine();
+        String accct = CONSOLE.readLine();
+        if (StringUtils.isBlank(accct)) {
+            throw new RuntimeException("Blank account name is not allowed!");
+        }
+        return accct;
     }
 
     public String readAccountSecret() {
         showToUser("Please enter account secret:");
         return readSecret();
+    }
+
+    public Boolean readYesNoAnswer() {
+        String answer = CONSOLE.readLine();
+        return StringUtils.equalsAnyIgnoreCase("yes", answer);
+    }
+
+    public String readPasswordConfirmation() {
+        showToUser("Please confirm password:");
+        return readSecret();
+    }
+
+    public void showErrorToUser(String errorMsg) {
+        System.err.println(errorMsg);
     }
 }
