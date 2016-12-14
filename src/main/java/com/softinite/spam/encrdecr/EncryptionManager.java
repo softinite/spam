@@ -52,7 +52,7 @@ public class EncryptionManager {
             return privateContent
                     .entrySet()
                     .stream()
-                    .reduce("", (accStr, entry) -> accStr + entry.getKey() + "=" + entry.getValue()  + System.lineSeparator(), (s1, s2) -> s1 + s2)
+                    .reduce("", (accStr, entry) -> accStr + entry.getKey() + "=" + entry.getValue() + System.lineSeparator(), (s1, s2) -> s1 + s2)
                     .getBytes();
         }
         return new byte[]{};
@@ -60,11 +60,11 @@ public class EncryptionManager {
 
     public Properties decrypt(FileProxy encryptedFile, String password) throws NoSuchPaddingException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException {
         Cipher cipher = buildCipher(password, Cipher.DECRYPT_MODE);
-        byte []encryptedContent = Files.readAllBytes(Paths.get(encryptedFile.getName()));
+        byte[] encryptedContent = Files.readAllBytes(Paths.get(encryptedFile.getName()));
         String decryptedStr = new String(cipher.doFinal(encryptedContent));
         String[] pairs = StringUtils.split(decryptedStr, "\n");
         Properties props = new Properties();
-        for(String pair : pairs) {
+        for (String pair : pairs) {
             int splitIdx = pair.indexOf("=");
             String key = StringUtils.left(pair, splitIdx);
             String value = StringUtils.substring(pair, splitIdx + 1);

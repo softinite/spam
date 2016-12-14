@@ -1,8 +1,6 @@
 package com.softinite.spam.encrdecr;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 
 /**
  * Responsible for hiding internal implementation of file operations.
@@ -34,13 +32,17 @@ public class FileProxy {
         return getInternal().createNewFile();
     }
 
-    public void write(byte []text) throws IOException {
-        try(FileOutputStream fos = new FileOutputStream(getInternal(), false)) {
+    public void write(byte[] text) throws IOException {
+        try (FileOutputStream fos = new FileOutputStream(getInternal(), false)) {
             fos.write(text);
         }
     }
 
     public Boolean isEmpty() {
         return getInternal().length() == 0;
+    }
+
+    public PrintWriter loadWriter() throws FileNotFoundException {
+        return new PrintWriter(getInternal());
     }
 }

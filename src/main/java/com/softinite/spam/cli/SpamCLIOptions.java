@@ -15,12 +15,22 @@ public enum SpamCLIOptions {
     NEW_ACCT("new", Boolean.FALSE, "Use this option to add new account to be managed."),
     SHOW("show", Boolean.FALSE, "Use this option to see the secret for a specific account."),
     UPDATE("update", Boolean.FALSE, "Use this option to update the secret for a specific account."),
-    DELETE("del", Boolean.FALSE, "Use this option to delete an account. Please use with caution.");
+    DELETE("del", Boolean.FALSE, "Use this option to delete an account. Please use with caution."),
+    DUMP("dump", Boolean.TRUE, "Use this property to write all the information about all the accounts to given plaintext file."),
+    IMPORT("import", Boolean.TRUE, "Use this property to import accounts from a plaintext file in 'properties' format.");
 
     private Option option;
 
     SpamCLIOptions(String name, Boolean requiresArgument, String description) {
         setOption(new Option(name, requiresArgument, description));
+    }
+
+    public static Options loadAllOptions() {
+        Options options = new Options();
+        for (SpamCLIOptions opt : values()) {
+            options.addOption(opt.getOption());
+        }
+        return options;
     }
 
     public Option getOption() {
@@ -33,13 +43,5 @@ public enum SpamCLIOptions {
 
     public String getName() {
         return getOption().getOpt();
-    }
-
-    public static Options loadAllOptions() {
-        Options options = new Options();
-        for(SpamCLIOptions opt : values()) {
-            options.addOption(opt.getOption());
-        }
-        return options;
     }
 }

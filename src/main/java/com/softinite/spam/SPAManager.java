@@ -24,10 +24,9 @@ import java.util.logging.Logger;
  */
 public class SPAManager {
 
-    private static final Logger LOGGER = Logger.getLogger(SPAManager.class.getName());
     public static final String CMD_LINE_SYNTAX = "java -jar SPAM-1.0-SNAPSHOT-fat.jar <OPTIONS>";
     protected static final String ACCT_NOT_FOUND_MSG = "Could not locate account ";
-
+    private static final Logger LOGGER = Logger.getLogger(SPAManager.class.getName());
     private Options availableOptions;
     private UserInteraction userInteraction;
     private PasswordContainer passwordContainer;
@@ -109,6 +108,10 @@ public class SPAManager {
             modifySecret();
         } else if (cmd.hasOption(SpamCLIOptions.DELETE.getName())) {
             removeAccount();
+        } else if (cmd.hasOption(SpamCLIOptions.DUMP.getName())) {
+            dumpAccounts(cmd.getOptionValue(SpamCLIOptions.DUMP.getName()));
+        } else if (cmd.hasOption(SpamCLIOptions.IMPORT.getName())) {
+            importAccounts(cmd.getOptionValue(SpamCLIOptions.IMPORT.getName()));
         }
     }
 
@@ -180,6 +183,38 @@ public class SPAManager {
         }
     }
 
+    protected void dumpAccounts(String fileName) throws IOException {
+        LOGGER.info("Preparing to dump information about all the accounts.");
+        if (StringUtils.isBlank(fileName)) {
+            getUserInteraction().showErrorToUser("Cannot accept blank file name for dumping accounts.");
+        } else {
+            FileProxy fProxy = new FileProxy();
+            fProxy.setInternal(new File(fileName));
+            if (fProxy.exists()) {
+                getUserInteraction().showErrorToUser("It seems that the file " + fileName + " already exists.");
+            } else {
+                getPasswordContainer().dumpToNewFile(fProxy);
+            }
+        }
+    }
+
+    protected void importAccounts(String fileName) throws NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidKeyException {
+        LOGGER.info("Preparing to import accounts from a plaintext file.");
+        if (StringUtils.isBlank(fileName)) {
+            getUserInteraction().showErrorToUser("Cannot accept blank file name for importing accounts.");
+        } else {
+            FileProxy fProxy = new FileProxy();
+            fProxy.setInternal(new File(fileName));
+            if (fProxy.exists()) {
+                getPasswordContainer().importAccounts(fProxy);
+                getPasswordContainer().save();
+            } else {
+                getUserInteraction().showErrorToUser("Could not locate file " + fileName + " for importing accounts.");
+            }
+        }
+    }
+
+
     public UserInteraction getUserInteraction() {
         return userInteraction;
     }
@@ -187,7 +222,6 @@ public class SPAManager {
     public void setUserInteraction(UserInteraction userInteraction) {
         this.userInteraction = userInteraction;
     }
-
 
     public PasswordContainer getPasswordContainer() {
         return passwordContainer;

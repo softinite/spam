@@ -5,7 +5,6 @@ import com.softinite.spam.cli.UserInteraction;
 import com.softinite.spam.encrdecr.FileProxy;
 import com.softinite.spam.encrdecr.PasswordContainer;
 import org.apache.commons.cli.CommandLine;
-import org.mockito.Mock;
 import org.testng.annotations.Test;
 
 import javax.crypto.BadPaddingException;
@@ -29,6 +28,38 @@ import static org.testng.Assert.fail;
 public class SPAManagerTest {
 
     private static final Logger LOG = Logger.getLogger(SPAManagerTest.class.getName());
+
+    @Test
+    public void ifImportOptionIsPassedThenimportAccountsIsInvoked() throws NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidKeyException {
+        CommandLine cmd = spy(CommandLine.class);
+        SPAManager manager = spy(SPAManager.class);
+        String fileName = "abc.txt";
+
+        when(cmd.hasOption(SpamCLIOptions.IMPORT.getName())).thenReturn(Boolean.TRUE);
+        when(cmd.getOptionValue(SpamCLIOptions.IMPORT.getName())).thenReturn(fileName);
+        doNothing().when(manager).importAccounts(fileName);
+
+        manager.executeUserCommand(cmd);
+
+        verify(cmd, times(1)).hasOption(SpamCLIOptions.IMPORT.getName());
+        verify(manager, times(1)).importAccounts(fileName);
+    }
+
+    @Test
+    public void ifDumpOptionIsPassedThenDumpAccountsIsInvoked() throws NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidKeyException {
+        CommandLine cmd = spy(CommandLine.class);
+        SPAManager manager = spy(SPAManager.class);
+        String fileName = "abc.txt";
+
+        when(cmd.hasOption(SpamCLIOptions.DUMP.getName())).thenReturn(Boolean.TRUE);
+        when(cmd.getOptionValue(SpamCLIOptions.DUMP.getName())).thenReturn(fileName);
+        doNothing().when(manager).dumpAccounts(fileName);
+
+        manager.executeUserCommand(cmd);
+
+        verify(cmd, times(1)).hasOption(SpamCLIOptions.DUMP.getName());
+        verify(manager, times(1)).dumpAccounts(fileName);
+    }
 
     @Test
     public void showSecretIfAccountNotFoundThenDisplayAppropriateError() {
