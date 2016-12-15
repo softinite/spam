@@ -6,6 +6,7 @@ import com.softinite.spam.encrdecr.FileProxy;
 import com.softinite.spam.encrdecr.PasswordContainer;
 import org.apache.commons.cli.*;
 import org.apache.commons.lang3.StringUtils;
+import org.bouncycastle.crypto.InvalidCipherTextException;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -31,7 +32,7 @@ public class SPAManager {
     private UserInteraction userInteraction;
     private PasswordContainer passwordContainer;
 
-    public static void main(String[] args) throws ParseException, IOException, IllegalBlockSizeException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException, InvalidKeyException, NoSuchProviderException {
+    public static void main(String[] args) throws Exception {
         LOGGER.info("Password manager has been started.");
         SPAManager manager = new SPAManager();
         manager.setAvailableOptions(SpamCLIOptions.loadAllOptions());
@@ -59,7 +60,7 @@ public class SPAManager {
         this.availableOptions = availableOptions;
     }
 
-    public void execute(CommandLine cmd) throws IOException, NoSuchPaddingException, BadPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException, InvalidAlgorithmParameterException, InvalidKeyException, NoSuchProviderException {
+    public void execute(CommandLine cmd) throws IOException, NoSuchPaddingException, BadPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException, InvalidAlgorithmParameterException, InvalidKeyException, NoSuchProviderException, InvalidCipherTextException {
         String fileArgName = SpamCLIOptions.FILE.getName();
         LOGGER.info("Processing argument " + fileArgName);
         if (cmd.hasOption(fileArgName)) {
@@ -71,13 +72,13 @@ public class SPAManager {
         }
     }
 
-    public void executeWithFileName(String fileName, CommandLine cmd) throws IOException, IllegalBlockSizeException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException, InvalidKeyException, NoSuchProviderException {
+    public void executeWithFileName(String fileName, CommandLine cmd) throws IOException, IllegalBlockSizeException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException, InvalidKeyException, NoSuchProviderException, InvalidCipherTextException {
         LOGGER.info("Loading password file object " + fileName);
         FileProxy file = loadPasswordFileObject(fileName);
         executeWithFile(cmd, file);
     }
 
-    protected void executeWithFile(CommandLine cmd, FileProxy file) throws IOException, NoSuchPaddingException, BadPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException, InvalidAlgorithmParameterException, InvalidKeyException, NoSuchProviderException {
+    protected void executeWithFile(CommandLine cmd, FileProxy file) throws IOException, NoSuchPaddingException, BadPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException, InvalidAlgorithmParameterException, InvalidKeyException, NoSuchProviderException, InvalidCipherTextException {
         if (file.exists()) {
             LOGGER.info("File exists.");
             String rootPassoword = getUserInteraction().readRootPassoword();
@@ -97,7 +98,7 @@ public class SPAManager {
         return fileProxy;
     }
 
-    protected void executeUserCommand(CommandLine cmd) throws NoSuchPaddingException, InvalidKeyException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidAlgorithmParameterException {
+    protected void executeUserCommand(CommandLine cmd) throws NoSuchPaddingException, InvalidKeyException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidAlgorithmParameterException, InvalidCipherTextException {
         if (cmd.hasOption(SpamCLIOptions.LIST_ACCTS_NAMES.getName())) {
             listAllAccounts();
         } else if (cmd.hasOption(SpamCLIOptions.NEW_ACCT.getName())) {
@@ -115,7 +116,7 @@ public class SPAManager {
         }
     }
 
-    protected void createFile(FileProxy targetFile) throws IOException, NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, NoSuchProviderException, InvalidKeyException {
+    protected void createFile(FileProxy targetFile) throws IOException, NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, NoSuchProviderException, InvalidKeyException, InvalidCipherTextException {
         String rootPassword = getUserInteraction().readRootPassoword();
         String confirmation = getUserInteraction().readPasswordConfirmation();
         if (StringUtils.equals(rootPassword, confirmation)) {
@@ -132,13 +133,13 @@ public class SPAManager {
         getUserInteraction().showSetToUser(getPasswordContainer().loadKeys());
     }
 
-    protected void addAccount() throws NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidKeyException {
+    protected void addAccount() throws NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidKeyException, InvalidCipherTextException {
         LOGGER.info("Adding new account to manager's database.");
         String accountName = getUserInteraction().readAccountName();
         addAccount(accountName);
     }
 
-    protected void addAccount(String accountName) throws NoSuchPaddingException, InvalidKeyException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidAlgorithmParameterException {
+    protected void addAccount(String accountName) throws NoSuchPaddingException, InvalidKeyException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidAlgorithmParameterException, InvalidCipherTextException {
         LOGGER.info("Reading secret for account=" + accountName);
         String accountSecret = getUserInteraction().readAccountSecret();
         getPasswordContainer().addAccount(accountName, accountSecret);
@@ -156,7 +157,7 @@ public class SPAManager {
         }
     }
 
-    protected void modifySecret() throws NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidKeyException {
+    protected void modifySecret() throws NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidKeyException, InvalidCipherTextException {
         LOGGER.info("Preparing to modify an account.");
         String accountName = getUserInteraction().readAccountName();
         if (getPasswordContainer().doesAccountExist(accountName)) {
@@ -172,7 +173,7 @@ public class SPAManager {
         }
     }
 
-    protected void removeAccount() throws NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidKeyException {
+    protected void removeAccount() throws NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidKeyException, InvalidCipherTextException {
         LOGGER.info("Preparing to delete account.");
         String accountName = getUserInteraction().readAccountName();
         if (getPasswordContainer().doesAccountExist(accountName)) {
@@ -198,7 +199,7 @@ public class SPAManager {
         }
     }
 
-    protected void importAccounts(String fileName) throws NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidKeyException {
+    protected void importAccounts(String fileName) throws NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidKeyException, InvalidCipherTextException {
         LOGGER.info("Preparing to import accounts from a plaintext file.");
         if (StringUtils.isBlank(fileName)) {
             getUserInteraction().showErrorToUser("Cannot accept blank file name for importing accounts.");

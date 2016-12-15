@@ -1,6 +1,7 @@
 package com.softinite.spam.encrdecr;
 
 import org.apache.commons.lang3.StringUtils;
+import org.bouncycastle.crypto.InvalidCipherTextException;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -31,7 +32,7 @@ public class PasswordContainer {
     private String password;
     private String storageFileName;
 
-    public void init(String rootPassoword, FileProxy existingFile) throws IOException, IllegalBlockSizeException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException {
+    public void init(String rootPassoword, FileProxy existingFile) throws IOException, IllegalBlockSizeException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException, InvalidCipherTextException {
         setPassword(rootPassoword);
         setStorageFileName(existingFile.getName());
         setEncryptionManager(new EncryptionManager());
@@ -42,7 +43,7 @@ public class PasswordContainer {
         }
     }
 
-    protected void decrypt(String rootPassoword, FileProxy existingFile) throws NoSuchPaddingException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException {
+    protected void decrypt(String rootPassoword, FileProxy existingFile) throws NoSuchPaddingException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException, InvalidCipherTextException {
         setProperties(getEncryptionManager().decrypt(existingFile, rootPassoword));
     }
 
@@ -62,7 +63,7 @@ public class PasswordContainer {
         getProperties().put(accountName, accountSecret);
     }
 
-    public void save() throws NoSuchPaddingException, InvalidKeyException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidAlgorithmParameterException {
+    public void save() throws NoSuchPaddingException, InvalidKeyException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidAlgorithmParameterException, InvalidCipherTextException {
         getEncryptionManager().encrypt(getProperties(), getPassword(), getStorageFileName());
     }
 

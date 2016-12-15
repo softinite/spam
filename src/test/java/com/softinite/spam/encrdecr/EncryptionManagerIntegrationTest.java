@@ -1,5 +1,6 @@
 package com.softinite.spam.encrdecr;
 
+import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -44,7 +45,7 @@ public class EncryptionManagerIntegrationTest {
     }
 
     @Test
-    public void checkEncryption() throws IOException, NoSuchPaddingException, InvalidKeyException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, NoSuchProviderException, InvalidAlgorithmParameterException {
+    public void checkEncryption() throws IOException, NoSuchPaddingException, InvalidKeyException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, NoSuchProviderException, InvalidAlgorithmParameterException, InvalidCipherTextException {
         EncryptionManager encryptionManager = new EncryptionManager();
         Properties secret = new Properties();
         String acctName = "abc";

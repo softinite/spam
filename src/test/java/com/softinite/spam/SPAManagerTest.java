@@ -5,6 +5,7 @@ import com.softinite.spam.cli.UserInteraction;
 import com.softinite.spam.encrdecr.FileProxy;
 import com.softinite.spam.encrdecr.PasswordContainer;
 import org.apache.commons.cli.CommandLine;
+import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.testng.annotations.Test;
 
 import javax.crypto.BadPaddingException;
@@ -30,7 +31,7 @@ public class SPAManagerTest {
     private static final Logger LOG = Logger.getLogger(SPAManagerTest.class.getName());
 
     @Test
-    public void ifImportOptionIsPassedThenimportAccountsIsInvoked() throws NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidKeyException {
+    public void ifImportOptionIsPassedThenimportAccountsIsInvoked() throws NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidKeyException, InvalidCipherTextException {
         CommandLine cmd = spy(CommandLine.class);
         SPAManager manager = spy(SPAManager.class);
         String fileName = "abc.txt";
@@ -46,7 +47,7 @@ public class SPAManagerTest {
     }
 
     @Test
-    public void ifDumpOptionIsPassedThenDumpAccountsIsInvoked() throws NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidKeyException {
+    public void ifDumpOptionIsPassedThenDumpAccountsIsInvoked() throws NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidKeyException, InvalidCipherTextException {
         CommandLine cmd = spy(CommandLine.class);
         SPAManager manager = spy(SPAManager.class);
         String fileName = "abc.txt";
@@ -81,7 +82,7 @@ public class SPAManagerTest {
     }
 
     @Test
-    public void createFileDoesNotSaveButThrowsExceptionWhenPasswordConfirmationDoesNotMatch() throws NoSuchPaddingException, InvalidKeyException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidAlgorithmParameterException {
+    public void createFileDoesNotSaveButThrowsExceptionWhenPasswordConfirmationDoesNotMatch() throws NoSuchPaddingException, InvalidKeyException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidAlgorithmParameterException, InvalidCipherTextException {
         SPAManager manager = spy(SPAManager.class);
         UserInteraction userInteraction = mock(UserInteraction.class);
         manager.setUserInteraction(userInteraction);
@@ -101,7 +102,7 @@ public class SPAManagerTest {
     }
 
     @Test
-    public void ifDeleteOptionIsPassedThenRemoveAccountCallIsInvoked() throws NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidKeyException {
+    public void ifDeleteOptionIsPassedThenRemoveAccountCallIsInvoked() throws NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidKeyException, InvalidCipherTextException {
         CommandLine cmd = spy(CommandLine.class);
         SPAManager manager = spy(SPAManager.class);
 
@@ -115,7 +116,7 @@ public class SPAManagerTest {
     }
 
     @Test
-    public void ifUpdateOptionIsPassedThenModifySecretCallIsInvoked() throws NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidKeyException {
+    public void ifUpdateOptionIsPassedThenModifySecretCallIsInvoked() throws NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidKeyException, InvalidCipherTextException {
         CommandLine cmd = spy(CommandLine.class);
         SPAManager manager = spy(SPAManager.class);
 
@@ -129,7 +130,7 @@ public class SPAManagerTest {
     }
 
     @Test
-    public void ifShowOptionIsPassedThenDisplaySecretCallIsInvoked() throws NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidKeyException {
+    public void ifShowOptionIsPassedThenDisplaySecretCallIsInvoked() throws NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidKeyException, InvalidCipherTextException {
         CommandLine cmd = spy(CommandLine.class);
         SPAManager manager = spy(SPAManager.class);
 
@@ -143,7 +144,7 @@ public class SPAManagerTest {
     }
 
     @Test
-    public void ifAddOptionIsPassedThenNewAccountCallIsInvoked() throws NoSuchPaddingException, InvalidKeyException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidAlgorithmParameterException {
+    public void ifAddOptionIsPassedThenNewAccountCallIsInvoked() throws NoSuchPaddingException, InvalidKeyException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidAlgorithmParameterException, InvalidCipherTextException {
         CommandLine cmd = spy(CommandLine.class);
         SPAManager manager = spy(SPAManager.class);
 
@@ -157,7 +158,7 @@ public class SPAManagerTest {
     }
 
     @Test
-    public void ifListCommandIsPassedThenCallListFunction() throws NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidKeyException {
+    public void ifListCommandIsPassedThenCallListFunction() throws NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidKeyException, InvalidCipherTextException {
         CommandLine cmd = mock(CommandLine.class);
         SPAManager manager = spy(SPAManager.class);
 
@@ -171,7 +172,7 @@ public class SPAManagerTest {
     }
 
     @Test
-    public void ifFileDoesNotExistButCreateOptionIsPassedThenCreateTheFile() throws IOException, NoSuchPaddingException, InvalidKeyException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, NoSuchProviderException, InvalidAlgorithmParameterException {
+    public void ifFileDoesNotExistButCreateOptionIsPassedThenCreateTheFile() throws IOException, NoSuchPaddingException, InvalidKeyException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, NoSuchProviderException, InvalidAlgorithmParameterException, InvalidCipherTextException {
         CommandLine cmd = mock(CommandLine.class);
         SPAManager manager = spy(SPAManager.class);
         FileProxy targetFile = mock(FileProxy.class);
@@ -190,7 +191,7 @@ public class SPAManagerTest {
     }
 
     @Test
-    public void ifFileOptionPresentThenHelpIsNotDisplayed() throws IOException, BadPaddingException, InvalidKeyException, NoSuchAlgorithmException, IllegalBlockSizeException, NoSuchProviderException, NoSuchPaddingException, InvalidAlgorithmParameterException {
+    public void ifFileOptionPresentThenHelpIsNotDisplayed() throws IOException, BadPaddingException, InvalidKeyException, NoSuchAlgorithmException, IllegalBlockSizeException, NoSuchProviderException, NoSuchPaddingException, InvalidAlgorithmParameterException, InvalidCipherTextException {
         CommandLine cmd = mock(CommandLine.class);
         SPAManager manager = spy(SPAManager.class);
         String fileName = "myFile";
@@ -208,7 +209,7 @@ public class SPAManagerTest {
     }
 
     @Test
-    public void ifHelpOptionPresentThenHelpFunctionalityIsInvoked() throws IOException, NoSuchPaddingException, InvalidKeyException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, NoSuchProviderException, InvalidAlgorithmParameterException {
+    public void ifHelpOptionPresentThenHelpFunctionalityIsInvoked() throws IOException, NoSuchPaddingException, InvalidKeyException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, NoSuchProviderException, InvalidAlgorithmParameterException, InvalidCipherTextException {
         CommandLine cmd = mock(CommandLine.class);
         SPAManager manager = spy(SPAManager.class);
 
@@ -222,7 +223,7 @@ public class SPAManagerTest {
     }
 
     @Test
-    public void ifNoOptionPresentThenHelpFunctionalityIsInvoked() throws IOException, NoSuchPaddingException, InvalidKeyException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, NoSuchProviderException, InvalidAlgorithmParameterException {
+    public void ifNoOptionPresentThenHelpFunctionalityIsInvoked() throws IOException, NoSuchPaddingException, InvalidKeyException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, NoSuchProviderException, InvalidAlgorithmParameterException, InvalidCipherTextException {
         CommandLine cmd = mock(CommandLine.class);
         SPAManager manager = spy(SPAManager.class);
 

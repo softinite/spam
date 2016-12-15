@@ -1,11 +1,13 @@
 package com.softinite.spam.encrdecr;
 
+import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.testng.annotations.Test;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import java.io.IOException;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Properties;
 
@@ -58,7 +60,7 @@ public class PasswordContainerTest {
     }
 
     @Test
-    public void initMethodDoesNotCallDecryptForEmptyFiles() throws NoSuchPaddingException, BadPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException, IOException {
+    public void initMethodDoesNotCallDecryptForEmptyFiles() throws NoSuchPaddingException, BadPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException, IOException, InvalidAlgorithmParameterException, InvalidCipherTextException {
         PasswordContainer passwordContainer = spy(PasswordContainer.class);
         FileProxy fileProxy = mock(FileProxy.class);
         String password = "myPassword";

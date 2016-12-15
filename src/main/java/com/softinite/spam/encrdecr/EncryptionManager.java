@@ -1,21 +1,25 @@
 package com.softinite.spam.encrdecr;
 
 import org.apache.commons.lang3.StringUtils;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.crypto.BlockCipher;
+import org.bouncycastle.crypto.BufferedBlockCipher;
+import org.bouncycastle.crypto.InvalidCipherTextException;
+import org.bouncycastle.crypto.engines.AESEngine;
+import org.bouncycastle.crypto.modes.CBCBlockCipher;
+import org.bouncycastle.crypto.paddings.PaddedBufferedBlockCipher;
+import org.bouncycastle.crypto.params.KeyParameter;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
-import javax.crypto.spec.SecretKeySpec;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.security.*;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Properties;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -25,26 +29,42 @@ import java.util.logging.Logger;
 public class EncryptionManager {
 
     private static final Logger LOGGER = Logger.getLogger(EncryptionManager.class.getName());
+    public static final Charset UTF8 = Charset.forName("UTF-8");
 
-    public FileProxy encrypt(Properties privateContent, String password, String fileName) throws NoSuchPaddingException, NoSuchAlgorithmException, NoSuchProviderException, IOException, InvalidAlgorithmParameterException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
+    public FileProxy encrypt(Properties privateContent, String password, String fileName) throws IOException, InvalidCipherTextException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException {
+        LOGGER.info("Preparing to encrypt content.");
         FileProxy encrypted = new FileProxy();
         encrypted.setInternal(new File(fileName));
-        Cipher cipher = buildCipher(password, Cipher.ENCRYPT_MODE);
-        encrypted.write(cipher.doFinal(loadPlainText(privateContent)));
+        BufferedBlockCipher cipher = buildCipher(password, Boolean.TRUE);
+        byte[] input = loadPlainText(privateContent);
+        byte[] outputBytes = performCryptographicOperation(cipher, input);
+        encrypted.write(outputBytes);
         return encrypted;
     }
 
-    protected Cipher buildCipher(String password, int mode) throws NoSuchAlgorithmException, NoSuchPaddingException, UnsupportedEncodingException {
-        BouncyCastleProvider provider = new BouncyCastleProvider();
-        Cipher cipher = Cipher.getInstance("AES", provider);
-        Key key = buildKey(password.toCharArray(), provider);
-        try {
-            cipher.init(mode, key);
-        } catch (InvalidKeyException ike) {
-            LOGGER.log(Level.SEVERE, "Please install JCE as indicated here -> http://help.boomi.com/atomsphere/GUID-D7FA3445-6483-45C5-85AD-60CA5BB15719.html", ike);
-            throw new RuntimeException(ike);
-        }
+    protected byte[] performCryptographicOperation(BufferedBlockCipher cipher, byte[] input) throws InvalidCipherTextException {
+        byte[] cipherText = new byte[cipher.getOutputSize(input.length)];
+        int outputLen = cipher.processBytes(input, 0, input.length, cipherText, 0);
+        cipher.doFinal(cipherText, outputLen);
+        return cipherText;
+    }
+
+    protected BufferedBlockCipher buildCipher(String password, Boolean forEncryption) throws NoSuchAlgorithmException, NoSuchPaddingException, UnsupportedEncodingException, InvalidAlgorithmParameterException {
+        BlockCipher engine = new AESEngine();
+        BufferedBlockCipher cipher = new PaddedBufferedBlockCipher(new CBCBlockCipher(engine));
+
+        byte []key = generateKey(password);
+
+        cipher.init(forEncryption, new KeyParameter(key));
         return cipher;
+    }
+
+    private byte[] generateKey(String password) throws NoSuchAlgorithmException {
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        digest.update(password.getBytes(UTF8));
+        byte[] keyBytes = new byte[32];
+        System.arraycopy(digest.digest(), 0, keyBytes, 0, keyBytes.length);
+        return keyBytes;
     }
 
     private byte[] loadPlainText(Properties privateContent) {
@@ -53,32 +73,34 @@ public class EncryptionManager {
                     .entrySet()
                     .stream()
                     .reduce("", (accStr, entry) -> accStr + entry.getKey() + "=" + entry.getValue() + System.lineSeparator(), (s1, s2) -> s1 + s2)
-                    .getBytes();
+                    .getBytes(UTF8);
         }
         return new byte[]{};
     }
 
-    public Properties decrypt(FileProxy encryptedFile, String password) throws NoSuchPaddingException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException {
-        Cipher cipher = buildCipher(password, Cipher.DECRYPT_MODE);
+    public Properties decrypt(FileProxy encryptedFile, String password) throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchPaddingException, IOException, InvalidCipherTextException {
+        LOGGER.info("Preparing to decrypt content.");
+        BufferedBlockCipher cipher = buildCipher(password, Boolean.FALSE);
         byte[] encryptedContent = Files.readAllBytes(Paths.get(encryptedFile.getName()));
-        String decryptedStr = new String(cipher.doFinal(encryptedContent));
+
+        byte[] outputBytes = performCryptographicOperation(cipher, encryptedContent);
+
+        String decryptedStr = new String(outputBytes);
         String[] pairs = StringUtils.split(decryptedStr, "\n");
         Properties props = new Properties();
         for (String pair : pairs) {
-            int splitIdx = pair.indexOf("=");
-            String key = StringUtils.left(pair, splitIdx);
-            String value = StringUtils.substring(pair, splitIdx + 1);
-            props.put(key, value);
+            if (StringUtils.isNotBlank(pair)) {
+                int splitIdx = pair.indexOf("=");
+                if (splitIdx > 0) {
+                    String key = StringUtils.left(pair, splitIdx);
+                    String value = StringUtils.substring(pair, splitIdx + 1);
+                    props.put(key, value);
+                } else {
+                    LOGGER.warning("Invalid entry " + pair);
+                }
+            }
         }
         return props;
-    }
-
-    private Key buildKey(char[] password, BouncyCastleProvider provider) throws NoSuchAlgorithmException, UnsupportedEncodingException {
-        MessageDigest digester = MessageDigest.getInstance("SHA-256", provider);
-        digester.update(String.valueOf(password).getBytes("UTF-8"));
-        byte[] key = digester.digest();
-        SecretKeySpec spec = new SecretKeySpec(key, "AES");
-        return spec;
     }
 
 }
