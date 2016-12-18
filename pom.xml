@@ -7,6 +7,7 @@
     <groupId>softinite</groupId>
     <artifactId>com.softinite.spam</artifactId>
     <version>1.0</version>
+    <description>Simple PAssword Manager</description>
 
     <build>
         <finalName>SPAM</finalName>
