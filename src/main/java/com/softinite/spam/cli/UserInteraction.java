@@ -33,7 +33,7 @@ public class UserInteraction {
 
     public void showSetToUser(Set<String> contentSet) {
         if (contentSet != null) {
-            contentSet.forEach(System.out::println);
+            contentSet.stream().sorted(String::compareToIgnoreCase).forEach(System.out::println);
         }
     }
 

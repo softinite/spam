@@ -25,7 +25,7 @@ import java.util.logging.Logger;
  */
 public class SPAManager {
 
-    public static final String CMD_LINE_SYNTAX = "java -jar SPAM-1.0-SNAPSHOT-fat.jar <OPTIONS>";
+    public static final String CMD_LINE_SYNTAX = "java -jar com.softinite.spam-1.1-SNAPSHOT.jar <OPTIONS>";
     public static final String ACCT_ALREADY_EXISTS = "Account already exists ";
     protected static final String ACCT_NOT_FOUND_MSG = "Could not locate account ";
     private static final Logger LOGGER = Logger.getLogger(SPAManager.class.getName());
