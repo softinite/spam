@@ -26,6 +26,7 @@ import java.util.logging.Logger;
 public class SPAManager {
 
     public static final String CMD_LINE_SYNTAX = "java -jar SPAM-1.0-SNAPSHOT-fat.jar <OPTIONS>";
+    public static final String ACCT_ALREADY_EXISTS = "Account already exists ";
     protected static final String ACCT_NOT_FOUND_MSG = "Could not locate account ";
     private static final Logger LOGGER = Logger.getLogger(SPAManager.class.getName());
     private Options availableOptions;
@@ -113,6 +114,8 @@ public class SPAManager {
             dumpAccounts(cmd.getOptionValue(SpamCLIOptions.DUMP.getName()));
         } else if (cmd.hasOption(SpamCLIOptions.IMPORT.getName())) {
             importAccounts(cmd.getOptionValue(SpamCLIOptions.IMPORT.getName()));
+        } else if (cmd.hasOption(SpamCLIOptions.RENAME.getName())) {
+            renameAccount();
         }
     }
 
@@ -215,6 +218,27 @@ public class SPAManager {
         }
     }
 
+
+    public void renameAccount() throws IOException, NoSuchAlgorithmException, InvalidCipherTextException, InvalidKeyException, InvalidAlgorithmParameterException, NoSuchPaddingException, BadPaddingException, NoSuchProviderException, IllegalBlockSizeException {
+        LOGGER.info("Preparing to rename an account.");
+        String oldAccountName = getUserInteraction().readAccountName();
+        if (getPasswordContainer().doesAccountExist(oldAccountName)) {
+            getUserInteraction().showToUser("Account " + oldAccountName + " has been located. Please enter the new name.");
+            String newAccountName = readAndValidateNewName();
+            getPasswordContainer().rename(oldAccountName, newAccountName);
+            getPasswordContainer().save();
+        } else {
+            getUserInteraction().showErrorToUser("Could not find account with name " + oldAccountName + ".");
+        }
+    }
+
+    protected String readAndValidateNewName() {
+        String newName = getUserInteraction().readAccountName();
+        if (getPasswordContainer().doesAccountExist(newName)) {
+            throw new RuntimeException(ACCT_ALREADY_EXISTS + newName);
+        }
+        return newName;
+    }
 
     public UserInteraction getUserInteraction() {
         return userInteraction;

@@ -11,6 +11,7 @@ import java.util.Set;
  */
 public class UserInteraction {
 
+    public static final String BLANK_NAME_NOT_ALLOWED = "Blank account name is not allowed!";
     private static final Console CONSOLE = System.console();
 
     public String readRootPassoword() {
@@ -38,11 +39,15 @@ public class UserInteraction {
 
     public String readAccountName() {
         showToUser("Please enter account name:");
-        String accct = CONSOLE.readLine();
+        String accct = readLine();
         if (StringUtils.isBlank(accct)) {
-            throw new RuntimeException("Blank account name is not allowed!");
+            throw new RuntimeException(BLANK_NAME_NOT_ALLOWED);
         }
         return accct;
+    }
+
+    protected String readLine() {
+        return CONSOLE.readLine();
     }
 
     public String readAccountSecret() {
@@ -51,7 +56,7 @@ public class UserInteraction {
     }
 
     public Boolean readYesNoAnswer() {
-        String answer = CONSOLE.readLine();
+        String answer = readLine();
         return StringUtils.equalsAnyIgnoreCase("yes", answer);
     }
 

@@ -98,6 +98,12 @@ public class PasswordContainer {
         }
     }
 
+    public void rename(String oldAccountName, String newAccountName) {
+        String secret = loadSecret(oldAccountName);
+        addAccount(newAccountName, secret);
+        remove(oldAccountName);
+    }
+
     protected EncryptionManager getEncryptionManager() {
         return encryptionManager;
     }

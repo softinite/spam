@@ -20,6 +20,7 @@ import java.util.Properties;
 import java.util.logging.Logger;
 
 import static org.mockito.Mockito.*;
+import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.fail;
 
 /**
@@ -29,6 +30,58 @@ import static org.testng.Assert.fail;
 public class SPAManagerTest {
 
     private static final Logger LOG = Logger.getLogger(SPAManagerTest.class.getName());
+
+    @Test
+    public void readAndValidateNewNameReturnsCorrectlyForNonExistingAccount() {
+        SPAManager manager = new SPAManager();
+        UserInteraction userInteraction = mock(UserInteraction.class);
+        PasswordContainer passwordContainer = mock(PasswordContainer.class);
+        manager.setPasswordContainer(passwordContainer);
+        manager.setUserInteraction(userInteraction);
+
+        String injectedName = "bankAccount";
+
+        when(userInteraction.readAccountName()).thenReturn(injectedName);
+        when(passwordContainer.doesAccountExist(injectedName)).thenReturn(Boolean.FALSE);
+
+        String newName = manager.readAndValidateNewName();
+        assertEquals(newName, injectedName);
+    }
+
+    @Test
+    public void readAndValidateNewNameThrowsExceptionForExistingName() {
+        SPAManager manager = new SPAManager();
+        UserInteraction userInteraction = mock(UserInteraction.class);
+        PasswordContainer passwordContainer = mock(PasswordContainer.class);
+        manager.setPasswordContainer(passwordContainer);
+        manager.setUserInteraction(userInteraction);
+
+        String injectedName = "bankAccount";
+
+        when(userInteraction.readAccountName()).thenReturn(injectedName);
+        when(passwordContainer.doesAccountExist(injectedName)).thenReturn(Boolean.TRUE);
+
+        try {
+            String newName = manager.readAndValidateNewName();
+            fail("Expected exception, but got " + newName + " instead.");
+        } catch (RuntimeException e) {
+            assertEquals(e.getMessage(), SPAManager.ACCT_ALREADY_EXISTS + injectedName);
+        }
+    }
+
+    @Test
+    public void ifRenameOptionIsPassedThenRenameAccountIsInvoked() throws IOException, NoSuchAlgorithmException, InvalidCipherTextException, InvalidKeyException, InvalidAlgorithmParameterException, NoSuchPaddingException, BadPaddingException, NoSuchProviderException, IllegalBlockSizeException {
+        CommandLine cmd = spy(CommandLine.class);
+        SPAManager manager = spy(SPAManager.class);
+
+        when(cmd.hasOption(SpamCLIOptions.RENAME.getName())).thenReturn(Boolean.TRUE);
+        doNothing().when(manager).renameAccount();
+
+        manager.executeUserCommand(cmd);
+
+        verify(cmd, times(1)).hasOption(SpamCLIOptions.RENAME.getName());
+        verify(manager, times(1)).renameAccount();
+    }
 
     @Test
     public void ifImportOptionIsPassedThenimportAccountsIsInvoked() throws NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidKeyException, InvalidCipherTextException {

@@ -17,7 +17,8 @@ public enum SpamCLIOptions {
     UPDATE("update", Boolean.FALSE, "Use this option to update the secret for a specific account."),
     DELETE("del", Boolean.FALSE, "Use this option to delete an account. Please use with caution."),
     DUMP("dump", Boolean.TRUE, "Use this property to write all the information about all the accounts to given plaintext file."),
-    IMPORT("import", Boolean.TRUE, "Use this property to import accounts from a plaintext file in 'properties' format.");
+    IMPORT("import", Boolean.TRUE, "Use this property to import accounts from a plaintext file in 'properties' format."),
+    RENAME("rename", Boolean.FALSE, "Use this option to rename an account.");
 
     private Option option;
 

@@ -28,8 +28,8 @@ import java.util.logging.Logger;
  */
 public class EncryptionManager {
 
-    private static final Logger LOGGER = Logger.getLogger(EncryptionManager.class.getName());
     public static final Charset UTF8 = Charset.forName("UTF-8");
+    private static final Logger LOGGER = Logger.getLogger(EncryptionManager.class.getName());
 
     public FileProxy encrypt(Properties privateContent, String password, String fileName) throws IOException, InvalidCipherTextException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException {
         LOGGER.info("Preparing to encrypt content.");
@@ -53,7 +53,7 @@ public class EncryptionManager {
         BlockCipher engine = new AESEngine();
         BufferedBlockCipher cipher = new PaddedBufferedBlockCipher(new CBCBlockCipher(engine));
 
-        byte []key = generateKey(password);
+        byte[] key = generateKey(password);
 
         cipher.init(forEncryption, new KeyParameter(key));
         return cipher;
@@ -88,6 +88,7 @@ public class EncryptionManager {
         String decryptedStr = new String(outputBytes);
         String[] pairs = StringUtils.split(decryptedStr, "\n");
         Properties props = new Properties();
+        Boolean ivRead = Boolean.FALSE;
         for (String pair : pairs) {
             if (StringUtils.isNotBlank(pair)) {
                 int splitIdx = pair.indexOf("=");
@@ -96,7 +97,11 @@ public class EncryptionManager {
                     String value = StringUtils.substring(pair, splitIdx + 1);
                     props.put(key, value);
                 } else {
-                    LOGGER.warning("Invalid entry " + pair);
+                    if (ivRead) {
+                        LOGGER.warning("Invalid entry " + pair);
+                    } else {
+                        ivRead = Boolean.TRUE;
+                    }
                 }
             }
         }
