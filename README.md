@@ -10,7 +10,7 @@ Example:
 
 ```
 cd target/SPAM
-java -jar com.softinite.spam-1.0.jar -file storage.spam -list
+java -jar com.softinite.spam-1.1.jar -file storage.spam -list
 ```
 
 ### Dependencies
