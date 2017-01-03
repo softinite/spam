@@ -18,7 +18,8 @@ public enum SpamCLIOptions {
     DELETE("del", Boolean.FALSE, "Use this option to delete an account. Please use with caution."),
     DUMP("dump", Boolean.TRUE, "Use this property to write all the information about all the accounts to given plaintext file."),
     IMPORT("import", Boolean.TRUE, "Use this property to import accounts from a plaintext file in 'properties' format."),
-    RENAME("rename", Boolean.FALSE, "Use this option to rename an account.");
+    RENAME("rename", Boolean.FALSE, "Use this option to rename an account."),
+    SEARCH("search", Boolean.FALSE, "Use this option to search for accounts matching a certain pattern.");
 
     private Option option;
 

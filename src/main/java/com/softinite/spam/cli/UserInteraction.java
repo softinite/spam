@@ -68,4 +68,9 @@ public class UserInteraction {
     public void showErrorToUser(String errorMsg) {
         System.err.println(errorMsg);
     }
+
+    public String readSearchPattern() {
+        showToUser("Please enter the search pattern for the account:");
+        return readLine();
+    }
 }

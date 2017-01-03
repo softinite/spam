@@ -116,6 +116,8 @@ public class SPAManager {
             importAccounts(cmd.getOptionValue(SpamCLIOptions.IMPORT.getName()));
         } else if (cmd.hasOption(SpamCLIOptions.RENAME.getName())) {
             renameAccount();
+        } else if (cmd.hasOption(SpamCLIOptions.SEARCH.getName())) {
+            searchAccounts();
         }
     }
 
@@ -219,7 +221,7 @@ public class SPAManager {
     }
 
 
-    public void renameAccount() throws IOException, NoSuchAlgorithmException, InvalidCipherTextException, InvalidKeyException, InvalidAlgorithmParameterException, NoSuchPaddingException, BadPaddingException, NoSuchProviderException, IllegalBlockSizeException {
+    protected void renameAccount() throws IOException, NoSuchAlgorithmException, InvalidCipherTextException, InvalidKeyException, InvalidAlgorithmParameterException, NoSuchPaddingException, BadPaddingException, NoSuchProviderException, IllegalBlockSizeException {
         LOGGER.info("Preparing to rename an account.");
         String oldAccountName = getUserInteraction().readAccountName();
         if (getPasswordContainer().doesAccountExist(oldAccountName)) {
@@ -230,6 +232,17 @@ public class SPAManager {
         } else {
             getUserInteraction().showErrorToUser("Could not find account with name " + oldAccountName + ".");
         }
+    }
+
+    protected void searchAccounts() {
+        LOGGER.info("Preparing to search for accounts.");
+        String searchPattern = getUserInteraction().readSearchPattern();
+        getPasswordContainer()
+                .loadKeys()
+                .stream()
+                .filter(accountName -> StringUtils.containsIgnoreCase(accountName, searchPattern))
+                .sorted()
+                .forEach(acctName -> getUserInteraction().showToUser(acctName));
     }
 
     protected String readAndValidateNewName() {

@@ -32,6 +32,20 @@ public class SPAManagerTest {
     private static final Logger LOG = Logger.getLogger(SPAManagerTest.class.getName());
 
     @Test
+    public void ifSearchOptionIsPassedThenSearchAccountsIsInvoked() throws IOException, NoSuchAlgorithmException, InvalidCipherTextException, InvalidKeyException, InvalidAlgorithmParameterException, NoSuchPaddingException, BadPaddingException, NoSuchProviderException, IllegalBlockSizeException {
+        CommandLine cmd = spy(CommandLine.class);
+        SPAManager manager = spy(SPAManager.class);
+
+        when(cmd.hasOption(SpamCLIOptions.SEARCH.getName())).thenReturn(Boolean.TRUE);
+        doNothing().when(manager).searchAccounts();
+
+        manager.executeUserCommand(cmd);
+
+        verify(cmd, times(1)).hasOption(SpamCLIOptions.SEARCH.getName());
+        verify(manager, times(1)).searchAccounts();
+    }
+
+    @Test
     public void readAndValidateNewNameReturnsCorrectlyForNonExistingAccount() {
         SPAManager manager = new SPAManager();
         UserInteraction userInteraction = mock(UserInteraction.class);
