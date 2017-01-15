@@ -1,11 +1,11 @@
 package com.softinite.spam;
 
-import com.softinite.spam.cli.SpamCLIOptions;
+import com.softinite.spam.cli.CLIParameters;
 import com.softinite.spam.cli.UserInteraction;
 import com.softinite.spam.encrdecr.FileProxy;
 import com.softinite.spam.encrdecr.PasswordContainer;
-import org.apache.commons.cli.CommandLine;
 import org.bouncycastle.crypto.InvalidCipherTextException;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import javax.crypto.BadPaddingException;
@@ -31,17 +31,22 @@ public class SPAManagerTest {
 
     private static final Logger LOG = Logger.getLogger(SPAManagerTest.class.getName());
 
+    private CLIParameters params;
+    
+    @BeforeMethod
+    public void beforeMethod() {
+        params = new CLIParameters();
+    }
+    
     @Test
     public void ifSearchOptionIsPassedThenSearchAccountsIsInvoked() throws IOException, NoSuchAlgorithmException, InvalidCipherTextException, InvalidKeyException, InvalidAlgorithmParameterException, NoSuchPaddingException, BadPaddingException, NoSuchProviderException, IllegalBlockSizeException {
-        CommandLine cmd = spy(CommandLine.class);
+        params.setSearch(Boolean.TRUE);
         SPAManager manager = spy(SPAManager.class);
 
-        when(cmd.hasOption(SpamCLIOptions.SEARCH.getName())).thenReturn(Boolean.TRUE);
         doNothing().when(manager).searchAccounts();
 
-        manager.executeUserCommand(cmd);
+        manager.executeUserCommand(params);
 
-        verify(cmd, times(1)).hasOption(SpamCLIOptions.SEARCH.getName());
         verify(manager, times(1)).searchAccounts();
     }
 
@@ -85,47 +90,39 @@ public class SPAManagerTest {
 
     @Test
     public void ifRenameOptionIsPassedThenRenameAccountIsInvoked() throws IOException, NoSuchAlgorithmException, InvalidCipherTextException, InvalidKeyException, InvalidAlgorithmParameterException, NoSuchPaddingException, BadPaddingException, NoSuchProviderException, IllegalBlockSizeException {
-        CommandLine cmd = spy(CommandLine.class);
+        params.setRename(Boolean.TRUE);
         SPAManager manager = spy(SPAManager.class);
 
-        when(cmd.hasOption(SpamCLIOptions.RENAME.getName())).thenReturn(Boolean.TRUE);
         doNothing().when(manager).renameAccount();
 
-        manager.executeUserCommand(cmd);
+        manager.executeUserCommand(params);
 
-        verify(cmd, times(1)).hasOption(SpamCLIOptions.RENAME.getName());
         verify(manager, times(1)).renameAccount();
     }
 
     @Test
     public void ifImportOptionIsPassedThenimportAccountsIsInvoked() throws NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidKeyException, InvalidCipherTextException {
-        CommandLine cmd = spy(CommandLine.class);
         SPAManager manager = spy(SPAManager.class);
         String fileName = "abc.txt";
-
-        when(cmd.hasOption(SpamCLIOptions.IMPORT.getName())).thenReturn(Boolean.TRUE);
-        when(cmd.getOptionValue(SpamCLIOptions.IMPORT.getName())).thenReturn(fileName);
+        params.setImportFile(fileName);
+        
         doNothing().when(manager).importAccounts(fileName);
 
-        manager.executeUserCommand(cmd);
+        manager.executeUserCommand(params);
 
-        verify(cmd, times(1)).hasOption(SpamCLIOptions.IMPORT.getName());
         verify(manager, times(1)).importAccounts(fileName);
     }
 
     @Test
     public void ifDumpOptionIsPassedThenDumpAccountsIsInvoked() throws NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidKeyException, InvalidCipherTextException {
-        CommandLine cmd = spy(CommandLine.class);
         SPAManager manager = spy(SPAManager.class);
         String fileName = "abc.txt";
 
-        when(cmd.hasOption(SpamCLIOptions.DUMP.getName())).thenReturn(Boolean.TRUE);
-        when(cmd.getOptionValue(SpamCLIOptions.DUMP.getName())).thenReturn(fileName);
+        params.setDump(fileName);        
         doNothing().when(manager).dumpAccounts(fileName);
 
-        manager.executeUserCommand(cmd);
+        manager.executeUserCommand(params);
 
-        verify(cmd, times(1)).hasOption(SpamCLIOptions.DUMP.getName());
         verify(manager, times(1)).dumpAccounts(fileName);
     }
 
@@ -170,136 +167,119 @@ public class SPAManagerTest {
 
     @Test
     public void ifDeleteOptionIsPassedThenRemoveAccountCallIsInvoked() throws NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidKeyException, InvalidCipherTextException {
-        CommandLine cmd = spy(CommandLine.class);
         SPAManager manager = spy(SPAManager.class);
+        params.setDelete(Boolean.TRUE);
 
-        when(cmd.hasOption(SpamCLIOptions.DELETE.getName())).thenReturn(Boolean.TRUE);
         doNothing().when(manager).removeAccount();
 
-        manager.executeUserCommand(cmd);
+        manager.executeUserCommand(params);
 
-        verify(cmd, times(1)).hasOption(SpamCLIOptions.DELETE.getName());
         verify(manager, times(1)).removeAccount();
     }
 
     @Test
     public void ifUpdateOptionIsPassedThenModifySecretCallIsInvoked() throws NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidKeyException, InvalidCipherTextException {
-        CommandLine cmd = spy(CommandLine.class);
         SPAManager manager = spy(SPAManager.class);
 
-        when(cmd.hasOption(SpamCLIOptions.UPDATE.getName())).thenReturn(Boolean.TRUE);
+        params.setUpdate(Boolean.TRUE);
         doNothing().when(manager).modifySecret();
 
-        manager.executeUserCommand(cmd);
+        manager.executeUserCommand(params);
 
-        verify(cmd, times(1)).hasOption(SpamCLIOptions.UPDATE.getName());
         verify(manager, times(1)).modifySecret();
     }
 
     @Test
     public void ifShowOptionIsPassedThenDisplaySecretCallIsInvoked() throws NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidKeyException, InvalidCipherTextException {
-        CommandLine cmd = spy(CommandLine.class);
         SPAManager manager = spy(SPAManager.class);
 
-        when(cmd.hasOption(SpamCLIOptions.SHOW.getName())).thenReturn(Boolean.TRUE);
+        params.setShow(Boolean.TRUE);
         doNothing().when(manager).showSecret();
 
-        manager.executeUserCommand(cmd);
+        manager.executeUserCommand(params);
 
-        verify(cmd, times(1)).hasOption(SpamCLIOptions.SHOW.getName());
         verify(manager, times(1)).showSecret();
     }
 
     @Test
     public void ifAddOptionIsPassedThenNewAccountCallIsInvoked() throws NoSuchPaddingException, InvalidKeyException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidAlgorithmParameterException, InvalidCipherTextException {
-        CommandLine cmd = spy(CommandLine.class);
         SPAManager manager = spy(SPAManager.class);
 
-        when(cmd.hasOption(SpamCLIOptions.NEW_ACCT.getName())).thenReturn(Boolean.TRUE);
+        params.setNewAcct(Boolean.TRUE);
         doNothing().when(manager).addAccount();
 
-        manager.executeUserCommand(cmd);
+        manager.executeUserCommand(params);
 
-        verify(cmd, times(1)).hasOption(SpamCLIOptions.NEW_ACCT.getName());
         verify(manager, times(1)).addAccount();
     }
 
     @Test
     public void ifListCommandIsPassedThenCallListFunction() throws NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidKeyException, InvalidCipherTextException {
-        CommandLine cmd = mock(CommandLine.class);
         SPAManager manager = spy(SPAManager.class);
 
-        when(cmd.hasOption(SpamCLIOptions.LIST_ACCTS_NAMES.getName())).thenReturn(Boolean.TRUE);
+        params.setList(Boolean.TRUE);
         doNothing().when(manager).listAllAccounts();
 
-        manager.executeUserCommand(cmd);
+        manager.executeUserCommand(params);
 
-        verify(cmd, times(1)).hasOption(SpamCLIOptions.LIST_ACCTS_NAMES.getName());
         verify(manager, times(1)).listAllAccounts();
     }
 
     @Test
     public void ifFileDoesNotExistButCreateOptionIsPassedThenCreateTheFile() throws IOException, NoSuchPaddingException, InvalidKeyException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, NoSuchProviderException, InvalidAlgorithmParameterException, InvalidCipherTextException {
-        CommandLine cmd = mock(CommandLine.class);
         SPAManager manager = spy(SPAManager.class);
         FileProxy targetFile = mock(FileProxy.class);
 
-        when(cmd.hasOption(SpamCLIOptions.FILE.getName())).thenReturn(Boolean.TRUE);
-        when(manager.loadPasswordFileObject("myFile")).thenReturn(targetFile);
+        String fileName = "myFile";
+        params.setFile(fileName);
+        params.setCreate(Boolean.TRUE);
+
+        when(manager.loadPasswordFileObject(fileName)).thenReturn(targetFile);
         when(targetFile.exists()).thenReturn(Boolean.FALSE);
-        when(cmd.hasOption(SpamCLIOptions.CREATE.getName())).thenReturn(Boolean.TRUE);
         doNothing().when(manager).createFile(targetFile);
 
-        manager.executeWithFile(cmd, targetFile);
+        manager.executeWithFile(params, targetFile);
 
         verify(targetFile, times(1)).exists();
-        verify(cmd, times(1)).hasOption(SpamCLIOptions.CREATE.getName());
         verify(manager, times(1)).createFile(targetFile);
     }
 
     @Test
     public void ifFileOptionPresentThenHelpIsNotDisplayed() throws IOException, BadPaddingException, InvalidKeyException, NoSuchAlgorithmException, IllegalBlockSizeException, NoSuchProviderException, NoSuchPaddingException, InvalidAlgorithmParameterException, InvalidCipherTextException {
-        CommandLine cmd = mock(CommandLine.class);
         SPAManager manager = spy(SPAManager.class);
         String fileName = "myFile";
 
-        when(cmd.hasOption(SpamCLIOptions.FILE.getName())).thenReturn(Boolean.TRUE);
-        when(cmd.getOptionValue(SpamCLIOptions.FILE.getName())).thenReturn(fileName);
-        doNothing().when(manager).executeWithFileName(fileName, cmd);
+        params.setFile(fileName);
+
+        doNothing().when(manager).executeWithFileName(fileName, params);
         doNothing().when(manager).showHelp();
 
-        manager.execute(cmd);
+        manager.execute(params);
 
-        verify(cmd, times(1)).hasOption(SpamCLIOptions.FILE.getName());
         verify(manager, times(0)).showHelp();
-        verify(manager, times(1)).executeWithFileName(fileName, cmd);
+        verify(manager, times(1)).executeWithFileName(fileName, params);
     }
 
     @Test
     public void ifHelpOptionPresentThenHelpFunctionalityIsInvoked() throws IOException, NoSuchPaddingException, InvalidKeyException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, NoSuchProviderException, InvalidAlgorithmParameterException, InvalidCipherTextException {
-        CommandLine cmd = mock(CommandLine.class);
         SPAManager manager = spy(SPAManager.class);
 
-        when(cmd.hasOption(SpamCLIOptions.FILE.getName())).thenReturn(Boolean.FALSE);
+        params.setHelp(Boolean.TRUE);
         doNothing().when(manager).showHelp();
 
-        manager.execute(cmd);
+        manager.execute(params);
 
-        verify(cmd, times(1)).hasOption(SpamCLIOptions.FILE.getName());
         verify(manager, times(1)).showHelp();
     }
 
     @Test
     public void ifNoOptionPresentThenHelpFunctionalityIsInvoked() throws IOException, NoSuchPaddingException, InvalidKeyException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, NoSuchProviderException, InvalidAlgorithmParameterException, InvalidCipherTextException {
-        CommandLine cmd = mock(CommandLine.class);
         SPAManager manager = spy(SPAManager.class);
 
-        when(cmd.hasOption(SpamCLIOptions.FILE.getName())).thenReturn(Boolean.FALSE);
         doNothing().when(manager).showHelp();
 
-        manager.execute(cmd);
+        manager.execute(params);
 
-        verify(cmd, times(1)).hasOption(SpamCLIOptions.FILE.getName());
         verify(manager, times(1)).showHelp();
     }
 
