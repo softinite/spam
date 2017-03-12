@@ -32,12 +32,24 @@ public class SPAManagerTest {
     private static final Logger LOG = Logger.getLogger(SPAManagerTest.class.getName());
 
     private CLIParameters params;
-    
+
     @BeforeMethod
     public void beforeMethod() {
         params = new CLIParameters();
     }
-    
+
+    @Test
+    public void ifMergeOptionsIsPassedThenFilesMergeIsInvoked() throws IOException, NoSuchAlgorithmException, InvalidCipherTextException, InvalidKeyException, InvalidAlgorithmParameterException, NoSuchPaddingException, BadPaddingException, NoSuchProviderException, IllegalBlockSizeException {
+        params.setMergeFile("anotherFile");
+        SPAManager manager = spy(SPAManager.class);
+
+        doNothing().when(manager).mergeFiles(params.getMergeFile());
+
+        manager.executeUserCommand(params);
+
+        verify(manager, times(1)).mergeFiles(params.getMergeFile());
+    }
+
     @Test
     public void ifSearchOptionIsPassedThenSearchAccountsIsInvoked() throws IOException, NoSuchAlgorithmException, InvalidCipherTextException, InvalidKeyException, InvalidAlgorithmParameterException, NoSuchPaddingException, BadPaddingException, NoSuchProviderException, IllegalBlockSizeException {
         params.setSearch(Boolean.TRUE);
@@ -105,7 +117,7 @@ public class SPAManagerTest {
         SPAManager manager = spy(SPAManager.class);
         String fileName = "abc.txt";
         params.setImportFile(fileName);
-        
+
         doNothing().when(manager).importAccounts(fileName);
 
         manager.executeUserCommand(params);
@@ -118,7 +130,7 @@ public class SPAManagerTest {
         SPAManager manager = spy(SPAManager.class);
         String fileName = "abc.txt";
 
-        params.setDump(fileName);        
+        params.setDump(fileName);
         doNothing().when(manager).dumpAccounts(fileName);
 
         manager.executeUserCommand(params);
@@ -152,7 +164,7 @@ public class SPAManagerTest {
         manager.setUserInteraction(userInteraction);
         FileProxy fProxy = mock(FileProxy.class);
 
-        when(userInteraction.readRootPassoword()).thenReturn("abc");
+        when(userInteraction.readSPAMPassoword()).thenReturn("abc");
         when(userInteraction.readPasswordConfirmation()).thenReturn("abC");
 
         try {

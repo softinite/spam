@@ -45,4 +45,7 @@ public class CLIParameters {
 
     @Parameter(names = {"-search", "-find", "-filter"}, description = "Use this option to search for accounts matching a certain pattern.")
     private Boolean search = Boolean.FALSE;
+
+    @Parameter(names = {"-merge"}, description = "Use this property to specify a file from which to merge accounts.")
+    private String mergeFile;
 }

@@ -74,7 +74,7 @@ public class SPAManager {
     protected void executeWithFile(CLIParameters params, FileProxy file) throws IOException, NoSuchPaddingException, BadPaddingException, NoSuchAlgorithmException, IllegalBlockSizeException, InvalidAlgorithmParameterException, InvalidKeyException, NoSuchProviderException, InvalidCipherTextException {
         if (file.exists()) {
             log.info("File exists.");
-            String rootPassoword = getUserInteraction().readRootPassoword();
+            String rootPassoword = getUserInteraction().readSPAMPassoword();
             getPasswordContainer().init(rootPassoword, file);
             executeUserCommand(params);
         } else if (params.getCreate()) {
@@ -110,11 +110,13 @@ public class SPAManager {
             renameAccount();
         } else if (params.getSearch()) {
             searchAccounts();
+        } else if (StringUtils.isNotBlank(params.getMergeFile())) {
+            mergeFiles(params.getMergeFile());
         }
     }
 
     protected void createFile(FileProxy targetFile) throws IOException, NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, NoSuchProviderException, InvalidKeyException, InvalidCipherTextException {
-        String rootPassword = getUserInteraction().readRootPassoword();
+        String rootPassword = getUserInteraction().readSPAMPassoword();
         String confirmation = getUserInteraction().readPasswordConfirmation();
         if (StringUtils.equals(rootPassword, confirmation)) {
             targetFile.touch();
@@ -235,6 +237,21 @@ public class SPAManager {
                 .filter(accountName -> StringUtils.containsIgnoreCase(accountName, searchPattern))
                 .sorted()
                 .forEach(acctName -> getUserInteraction().showToUser(acctName));
+    }
+
+    protected void mergeFiles(String mergeFile) throws BadPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IllegalBlockSizeException, NoSuchPaddingException, InvalidCipherTextException, IOException, NoSuchProviderException, InvalidKeyException {
+        log.info("Preparing to merge accounts from two files.");
+        PasswordContainer secondPasswordContainer = loadPasswordContainer(mergeFile);
+        getPasswordContainer().mergeFrom(secondPasswordContainer);
+        getPasswordContainer().save();
+    }
+
+    private PasswordContainer loadPasswordContainer(String mergeFile) throws IllegalBlockSizeException, NoSuchAlgorithmException, IOException, InvalidCipherTextException, BadPaddingException, NoSuchPaddingException, InvalidAlgorithmParameterException {
+        FileProxy mergeFileProxy = loadPasswordFileObject(mergeFile);
+        PasswordContainer pc = new PasswordContainer();
+        String mergeFilePwd = getUserInteraction().readSPAMPassoword("Please specify SPAM password for the merge file.");
+        pc.init(mergeFilePwd, mergeFileProxy);
+        return pc;
     }
 
     protected String readAndValidateNewName() {

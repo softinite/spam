@@ -1,5 +1,8 @@
 package com.softinite.spam.encrdecr;
 
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 
@@ -29,7 +32,11 @@ public class PasswordContainer {
 
     private Properties properties;
     private EncryptionManager encryptionManager;
+
+    @Getter(AccessLevel.PROTECTED)
+    @Setter(AccessLevel.PROTECTED)
     private String password;
+
     private String storageFileName;
 
     public void init(String rootPassoword, FileProxy existingFile) throws IOException, IllegalBlockSizeException, BadPaddingException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException, InvalidCipherTextException {
@@ -112,14 +119,6 @@ public class PasswordContainer {
         this.encryptionManager = encryptionManager;
     }
 
-    protected String getPassword() {
-        return password;
-    }
-
-    protected void setPassword(String password) {
-        this.password = password;
-    }
-
     public String getStorageFileName() {
         return storageFileName;
     }
@@ -142,5 +141,24 @@ public class PasswordContainer {
 
     public void modify(String accountName, String accountSecret) {
         getProperties().put(accountName, accountSecret);
+    }
+
+    public void mergeFrom(PasswordContainer secondPasswordContainer) {
+        secondPasswordContainer
+                .getProperties()
+                .entrySet()
+                .stream()
+                .filter(entry -> !getProperties().containsKey(entry.getKey()) || !getProperties().getProperty((String)entry.getKey()).equals(entry.getValue()))
+                .forEach(entry -> {
+                    if (getProperties().containsKey(entry.getKey())) {
+                        getProperties().put(entry.getKey() + "_" + generateUniqueSuffix(), entry.getValue());
+                    } else {
+                        getProperties().put(entry.getKey(), entry.getValue());
+                    }
+                });
+    }
+
+    protected String generateUniqueSuffix() {
+        return UUID.randomUUID().toString();
     }
 }

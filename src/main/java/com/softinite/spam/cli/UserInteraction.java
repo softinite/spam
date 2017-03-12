@@ -14,8 +14,12 @@ public class UserInteraction {
     public static final String BLANK_NAME_NOT_ALLOWED = "Blank account name is not allowed!";
     private static final Console CONSOLE = System.console();
 
-    public String readRootPassoword() {
-        showToUser("Please input root password:");
+    public String readSPAMPassoword() {
+        return readSPAMPassoword("Please input SPAM password:");
+    }
+
+    public String readSPAMPassoword(String msg) {
+        showToUser(msg);
         return readSecret();
     }
 

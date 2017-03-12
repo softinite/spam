@@ -12,14 +12,51 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Properties;
 
 import static org.mockito.Mockito.*;
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.*;
 
 /**
  * Responsible for testing PasswordContainer
  * Created by Sergiu Ivasenco on 06/12/16.
  */
 public class PasswordContainerTest {
+
+    @Test
+    public void verifyMergeAccounts() {
+        PasswordContainer container = spy(new PasswordContainer());
+        container.setProperties(new Properties());
+        PasswordContainer anotherContainer = new PasswordContainer();
+        anotherContainer.setProperties(new Properties());
+
+        String acct1 = "acct1";
+        String secret1 = "secret1";
+        String acct2 = "acct2";
+        String secret2 = "secret2";
+        String acct3 = "acct3";
+        String secret3 = "secret3";
+        String acct4 = "acct4";
+        String secret4 = "secret4";
+        String secret5 = "secret5";
+
+        container.addAccount(acct1, secret1);
+        container.addAccount(acct2, secret2);
+        container.addAccount(acct3, secret3);
+
+        anotherContainer.addAccount(acct4, secret4);
+        anotherContainer.addAccount(acct2, secret2);
+        anotherContainer.addAccount(acct3, secret5);
+
+        String uniqueSuffix = "123";
+        doReturn(uniqueSuffix).when(container).generateUniqueSuffix();
+
+        container.mergeFrom(anotherContainer);
+
+        assertEquals(container.getProperties().size(), 5);
+        assertEquals(container.getProperties().getProperty(acct1), secret1);
+        assertEquals(container.getProperties().getProperty(acct2), secret2);
+        assertEquals(container.getProperties().getProperty(acct3), secret3);
+        assertEquals(container.getProperties().getProperty(acct4), secret4);
+        assertEquals(container.getProperties().getProperty(acct3 + "_" + uniqueSuffix), secret5);
+    }
 
     @Test
     public void verifyRemoveAccount() {
