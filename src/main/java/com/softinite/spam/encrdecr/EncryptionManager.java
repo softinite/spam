@@ -79,9 +79,10 @@ public class EncryptionManager {
     }
 
     public Properties decrypt(FileProxy encryptedFile, String password) throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchPaddingException, IOException, InvalidCipherTextException {
-        LOGGER.info("Preparing to decrypt content.");
         BufferedBlockCipher cipher = buildCipher(password, Boolean.FALSE);
-        byte[] encryptedContent = Files.readAllBytes(Paths.get(encryptedFile.getName()));
+        final String absolutePath = encryptedFile.getInternal().getAbsolutePath();
+        LOGGER.info("Preparing to decrypt content " + absolutePath);
+        byte[] encryptedContent = Files.readAllBytes(Paths.get(absolutePath));
 
         byte[] outputBytes = performCryptographicOperation(cipher, encryptedContent);
 

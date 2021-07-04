@@ -3,7 +3,9 @@ package com.softinite.spam.cli;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.Console;
+import java.util.Comparator;
 import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * Responsible for interacting with the user
@@ -76,5 +78,20 @@ public class UserInteraction {
     public String readSearchPattern() {
         showToUser("Please enter the search pattern for the account:");
         return readLine();
+    }
+
+    public MenuOptions readMenuOption() {
+        showToUser("Please select a optionId representing one of the following options:");
+        Stream
+                .of(MenuOptions.values())
+                .filter(mo -> mo.getId() > 0)
+                .sorted(Comparator.comparing(MenuOptions::getId))
+                .forEach(mo -> showToUser(mo.getId() + " - " + mo.getLabel()));
+        Integer optionId = readNumber();
+        return MenuOptions.from(optionId);
+    }
+
+    private Integer readNumber() {
+        return Integer.valueOf(readLine());
     }
 }

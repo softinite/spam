@@ -2,6 +2,7 @@ package com.softinite.spam;
 
 import com.beust.jcommander.JCommander;
 import com.softinite.spam.cli.CLIParameters;
+import com.softinite.spam.cli.MenuOptions;
 import com.softinite.spam.cli.UserInteraction;
 import com.softinite.spam.encrdecr.FileProxy;
 import com.softinite.spam.encrdecr.PasswordContainer;
@@ -28,7 +29,7 @@ import java.security.NoSuchProviderException;
 @Data
 public class SPAManager {
 
-    public static final String CMD_LINE_SYNTAX = "java -jar com.softinite.spam-1.1-SNAPSHOT.jar <OPTIONS>";
+    public static final String CMD_LINE_SYNTAX = "java -jar com.softinite.spam-1.3.jar <OPTIONS>";
     public static final String ACCT_ALREADY_EXISTS = "Account already exists ";
     protected static final String ACCT_NOT_FOUND_MSG = "Could not locate account ";
     private UserInteraction userInteraction;
@@ -42,7 +43,9 @@ public class SPAManager {
         manager.setUserInteraction(new UserInteraction());
 
         CLIParameters params = new CLIParameters();
-        manager.setCommandParser(new JCommander(params, args));
+        JCommander commander = new JCommander(params);
+        commander.parse(args);
+        manager.setCommandParser(commander);
 
         log.info("Executing selected command.");
         manager.execute(params);
@@ -92,26 +95,31 @@ public class SPAManager {
     }
 
     protected void executeUserCommand(CLIParameters params) throws NoSuchPaddingException, InvalidKeyException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidAlgorithmParameterException, InvalidCipherTextException {
-        if (params.getList()) {
-            listAllAccounts();
-        } else if (params.getNewAcct()) {
-            addAccount();
-        } else if (params.getShow()) {
-            showSecret();
-        } else if (params.getUpdate()) {
-            modifySecret();
-        } else if (params.getDelete()) {
-            removeAccount();
-        } else if (StringUtils.isNotBlank(params.getDump())) {
+        if (StringUtils.isNotBlank(params.getDump())) {
             dumpAccounts(params.getDump());
         } else if (StringUtils.isNotBlank(params.getImportFile())) {
             importAccounts(params.getImportFile());
-        } else if (params.getRename()) {
-            renameAccount();
-        } else if (params.getSearch()) {
-            searchAccounts();
         } else if (StringUtils.isNotBlank(params.getMergeFile())) {
             mergeFiles(params.getMergeFile());
+        } else {
+            executeMenuOption();
+        }
+    }
+
+    private void executeMenuOption() throws InvalidCipherTextException, InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, IOException, BadPaddingException, NoSuchProviderException, InvalidKeyException {
+        MenuOptions selectedOption = MenuOptions.NONE;
+        while(selectedOption != MenuOptions.QUIT) {
+            selectedOption = userInteraction.readMenuOption();
+            switch (selectedOption) {
+                case LIST_SECRETS -> listAllSecrets();
+                case ADD_SECRET -> addSecret();
+                case SHOW_SECRET -> showSecret();
+                case UPDATE_SECRET -> updateSecret();
+                case REMOVE_SECRET -> removeSecret();
+                case RENAME_SECRET -> renameSecret();
+                case SEARCH_SECRET -> searchAccounts();
+                case NONE -> userInteraction.showErrorToUser("Invalid option selected.");
+            }
         }
     }
 
@@ -127,18 +135,18 @@ public class SPAManager {
         }
     }
 
-    protected void listAllAccounts() {
+    protected void listAllSecrets() {
         log.info("Listing all the accounts.");
         getUserInteraction().showSetToUser(getPasswordContainer().loadKeys());
     }
 
-    protected void addAccount() throws NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidKeyException, InvalidCipherTextException {
+    protected void addSecret() throws NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidKeyException, InvalidCipherTextException {
         log.info("Adding new account to manager's database.");
         String accountName = getUserInteraction().readAccountName();
-        addAccount(accountName);
+        addSecret(accountName);
     }
 
-    protected void addAccount(String accountName) throws NoSuchPaddingException, InvalidKeyException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidAlgorithmParameterException, InvalidCipherTextException {
+    protected void addSecret(String accountName) throws NoSuchPaddingException, InvalidKeyException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidAlgorithmParameterException, InvalidCipherTextException {
         log.info("Reading secret for account=" + accountName);
         String accountSecret = getUserInteraction().readAccountSecret();
         getPasswordContainer().addAccount(accountName, accountSecret);
@@ -156,7 +164,7 @@ public class SPAManager {
         }
     }
 
-    protected void modifySecret() throws NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidKeyException, InvalidCipherTextException {
+    protected void updateSecret() throws NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidKeyException, InvalidCipherTextException {
         log.info("Preparing to modify an account.");
         String accountName = getUserInteraction().readAccountName();
         if (getPasswordContainer().doesAccountExist(accountName)) {
@@ -167,12 +175,12 @@ public class SPAManager {
             getUserInteraction().showToUser("Could not find account with name " + accountName + ". Would you like to add it yes/no ? [no]");
             Boolean yes = getUserInteraction().readYesNoAnswer();
             if (yes) {
-                addAccount(accountName);
+                addSecret(accountName);
             }
         }
     }
 
-    protected void removeAccount() throws NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidKeyException, InvalidCipherTextException {
+    protected void removeSecret() throws NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidKeyException, InvalidCipherTextException {
         log.info("Preparing to delete account.");
         String accountName = getUserInteraction().readAccountName();
         if (getPasswordContainer().doesAccountExist(accountName)) {
@@ -215,7 +223,7 @@ public class SPAManager {
     }
 
 
-    protected void renameAccount() throws IOException, NoSuchAlgorithmException, InvalidCipherTextException, InvalidKeyException, InvalidAlgorithmParameterException, NoSuchPaddingException, BadPaddingException, NoSuchProviderException, IllegalBlockSizeException {
+    protected void renameSecret() throws IOException, NoSuchAlgorithmException, InvalidCipherTextException, InvalidKeyException, InvalidAlgorithmParameterException, NoSuchPaddingException, BadPaddingException, NoSuchProviderException, IllegalBlockSizeException {
         log.info("Preparing to rename an account.");
         String oldAccountName = getUserInteraction().readAccountName();
         if (getPasswordContainer().doesAccountExist(oldAccountName)) {

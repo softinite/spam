@@ -19,7 +19,12 @@ import java.security.NoSuchProviderException;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.fail;
 
@@ -48,18 +53,6 @@ public class SPAManagerTest {
         manager.executeUserCommand(params);
 
         verify(manager, times(1)).mergeFiles(params.getMergeFile());
-    }
-
-    @Test
-    public void ifSearchOptionIsPassedThenSearchAccountsIsInvoked() throws IOException, NoSuchAlgorithmException, InvalidCipherTextException, InvalidKeyException, InvalidAlgorithmParameterException, NoSuchPaddingException, BadPaddingException, NoSuchProviderException, IllegalBlockSizeException {
-        params.setSearch(Boolean.TRUE);
-        SPAManager manager = spy(SPAManager.class);
-
-        doNothing().when(manager).searchAccounts();
-
-        manager.executeUserCommand(params);
-
-        verify(manager, times(1)).searchAccounts();
     }
 
     @Test
@@ -98,18 +91,6 @@ public class SPAManagerTest {
         } catch (RuntimeException e) {
             assertEquals(e.getMessage(), SPAManager.ACCT_ALREADY_EXISTS + injectedName);
         }
-    }
-
-    @Test
-    public void ifRenameOptionIsPassedThenRenameAccountIsInvoked() throws IOException, NoSuchAlgorithmException, InvalidCipherTextException, InvalidKeyException, InvalidAlgorithmParameterException, NoSuchPaddingException, BadPaddingException, NoSuchProviderException, IllegalBlockSizeException {
-        params.setRename(Boolean.TRUE);
-        SPAManager manager = spy(SPAManager.class);
-
-        doNothing().when(manager).renameAccount();
-
-        manager.executeUserCommand(params);
-
-        verify(manager, times(1)).renameAccount();
     }
 
     @Test
@@ -175,66 +156,6 @@ public class SPAManagerTest {
         }
 
         verify(fProxy, times(0)).touch();
-    }
-
-    @Test
-    public void ifDeleteOptionIsPassedThenRemoveAccountCallIsInvoked() throws NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidKeyException, InvalidCipherTextException {
-        SPAManager manager = spy(SPAManager.class);
-        params.setDelete(Boolean.TRUE);
-
-        doNothing().when(manager).removeAccount();
-
-        manager.executeUserCommand(params);
-
-        verify(manager, times(1)).removeAccount();
-    }
-
-    @Test
-    public void ifUpdateOptionIsPassedThenModifySecretCallIsInvoked() throws NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidKeyException, InvalidCipherTextException {
-        SPAManager manager = spy(SPAManager.class);
-
-        params.setUpdate(Boolean.TRUE);
-        doNothing().when(manager).modifySecret();
-
-        manager.executeUserCommand(params);
-
-        verify(manager, times(1)).modifySecret();
-    }
-
-    @Test
-    public void ifShowOptionIsPassedThenDisplaySecretCallIsInvoked() throws NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidKeyException, InvalidCipherTextException {
-        SPAManager manager = spy(SPAManager.class);
-
-        params.setShow(Boolean.TRUE);
-        doNothing().when(manager).showSecret();
-
-        manager.executeUserCommand(params);
-
-        verify(manager, times(1)).showSecret();
-    }
-
-    @Test
-    public void ifAddOptionIsPassedThenNewAccountCallIsInvoked() throws NoSuchPaddingException, InvalidKeyException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidAlgorithmParameterException, InvalidCipherTextException {
-        SPAManager manager = spy(SPAManager.class);
-
-        params.setNewAcct(Boolean.TRUE);
-        doNothing().when(manager).addAccount();
-
-        manager.executeUserCommand(params);
-
-        verify(manager, times(1)).addAccount();
-    }
-
-    @Test
-    public void ifListCommandIsPassedThenCallListFunction() throws NoSuchPaddingException, InvalidAlgorithmParameterException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, NoSuchProviderException, InvalidKeyException, InvalidCipherTextException {
-        SPAManager manager = spy(SPAManager.class);
-
-        params.setList(Boolean.TRUE);
-        doNothing().when(manager).listAllAccounts();
-
-        manager.executeUserCommand(params);
-
-        verify(manager, times(1)).listAllAccounts();
     }
 
     @Test
