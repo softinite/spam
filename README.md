@@ -1,6 +1,6 @@
 # SPAM = Simple PAssword Manager 
 
-The jar needs to be run from inside SPAM folder created in 'target'.
+One can use SPAM-jar-with-dependencies.jar created in 'target'.
 
 How secure is it?
 The implementation relies on AES-256 encryption provided by BouncyCastle and SUN JCE,
@@ -10,7 +10,7 @@ Example:
 
 ```
 cd target/SPAM
-java -jar com.softinite.spam-1.1.jar -file storage.spam -list
+java -jar SPAM-jar-with-dependencies.jar -file storage.spam
 ```
 
 ### Dependencies

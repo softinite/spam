@@ -29,7 +29,7 @@ import java.security.NoSuchProviderException;
 @Data
 public class SPAManager {
 
-    public static final String CMD_LINE_SYNTAX = "java -jar com.softinite.spam-1.3.jar <OPTIONS>";
+    public static final String CMD_LINE_SYNTAX = "java -jar com.softinite.spam-1.4.jar <OPTIONS>";
     public static final String ACCT_ALREADY_EXISTS = "Account already exists ";
     protected static final String ACCT_NOT_FOUND_MSG = "Could not locate account ";
     private UserInteraction userInteraction;
